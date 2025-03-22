@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 export interface Room {
   id: number;
@@ -40,10 +40,21 @@ class RoomModel {
     id: number,
     roomData: Partial<UpdateRoomDTO>
   ): Promise<Room | null> {
-    return prisma.room.update({
-      where: { id: id },
-      data: roomData,
-    });
+    try {
+      return await prisma.room.update({
+        where: { id: id },
+        data: roomData,
+      });
+    } catch (error: unknown) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return null;
+      }
+
+      throw error;
+    }
   }
 
   static async delete(id: number): Promise<boolean> {

@@ -58,6 +58,11 @@ class RoomController {
   ): Promise<void> => {
     const id = parseInt(req.params.id, 10);
 
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid ID format" });
+      return;
+    }
+
     try {
       const validatedData = updateRoomSchema.parse(req.body);
       const updatedRoom = await RoomService.updateRoom(id, validatedData);
