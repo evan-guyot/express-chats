@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import roomRoutes from "./routes/room.routes";
+import authRoutes from "./routes/auth.routes";
+import authenticateToken from "./middlewares/auth.middleware";
 
 dotenv.config();
 
@@ -13,7 +15,8 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
-app.use("/rooms", roomRoutes);
+app.use("/auth", authRoutes);
+app.use("/rooms", authenticateToken, roomRoutes);
 
 app.listen(PORT, () => {
   console.log(`⚡ Server running on http://localhost:${PORT}`);
