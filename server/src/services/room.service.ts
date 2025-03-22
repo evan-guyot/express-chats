@@ -9,7 +9,7 @@ class RoomService {
     return RoomModel.findAll();
   }
 
-  static async getRoomById(id: string): Promise<Room | undefined> {
+  static async getRoomById(id: number): Promise<Room | null> {
     return RoomModel.findById(id);
   }
 
@@ -18,13 +18,13 @@ class RoomService {
   }
 
   static async updateRoom(
-    id: string,
+    id: number,
     roomData: UpdateRoomDTO
-  ): Promise<Room | undefined> {
+  ): Promise<Room | null> {
     return RoomModel.update(id, roomData);
   }
 
-  static async deleteRoom(id: string): Promise<void> {
+  static async deleteRoom(id: number): Promise<boolean> {
     return RoomModel.delete(id);
   }
 }

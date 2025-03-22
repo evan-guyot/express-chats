@@ -1,52 +1,60 @@
+import { PrismaClient } from "@prisma/client";
+
 export interface Room {
-  id: string;
+  id: number;
   name: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateRoomDTO {
   name: string;
+  description: string;
 }
 
 export interface UpdateRoomDTO {
   name: string;
+  description: string;
 }
 
-let rooms: Room[] = []; // In-memory database
+const prisma = new PrismaClient();
 
 class RoomModel {
   static async findAll(): Promise<Room[]> {
-    return rooms;
+    return prisma.room.findMany();
   }
 
-  static async findById(id: string): Promise<Room | undefined> {
-    return rooms.find((room) => room.id === id);
+  static async findById(id: number): Promise<Room | null> {
+    return prisma.room.findUnique({
+      where: { id: id },
+    });
   }
 
   static async create(roomData: CreateRoomDTO): Promise<Room> {
-    const newRoom: Room = {
-      id: String(Date.now()),
-      ...roomData,
-      createdAt: new Date(),
-    };
-    rooms.push(newRoom);
-    return newRoom;
+    return prisma.room.create({
+      data: roomData,
+    });
   }
 
   static async update(
-    id: string,
+    id: number,
     roomData: Partial<UpdateRoomDTO>
-  ): Promise<Room | undefined> {
-    const index = rooms.findIndex((room) => room.id === id);
-    if (index !== -1) {
-      rooms[index] = { ...rooms[index], ...roomData };
-      return rooms[index];
-    }
-    return undefined;
+  ): Promise<Room | null> {
+    return prisma.room.update({
+      where: { id: id },
+      data: roomData,
+    });
   }
 
-  static async delete(id: string): Promise<void> {
-    rooms = rooms.filter((room) => room.id !== id);
+  static async delete(id: number): Promise<boolean> {
+    try {
+      const room = await prisma.room.delete({
+        where: { id: id },
+      });
+      return room !== null;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
