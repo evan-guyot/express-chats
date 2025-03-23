@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
-app.use("/auth", authRoutes);
-app.use("/rooms", authenticateToken, roomRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/rooms", authenticateToken, roomRoutes);
 
 app.listen(PORT, () => {
   console.log(`⚡ Server running on http://localhost:${PORT}`);
