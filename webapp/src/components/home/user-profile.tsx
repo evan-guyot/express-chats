@@ -38,7 +38,7 @@ function UserProfile({ user }: { user: User }) {
           </div>
 
           <a
-            className="flex items-center font-light text-gray-500 dark:text-gray-400 font-medium text-primary-600 dark:text-primary-500 cursor-pointer mx-auto w-fit"
+            className="flex items-center text-gray-500 dark:text-gray-400 font-medium text-primary-600 dark:text-primary-500 cursor-pointer mx-auto w-fit"
             onClick={handleLogout}
           >
             <LogOut className="mr-2" /> Logout
