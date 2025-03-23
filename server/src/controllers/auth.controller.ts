@@ -8,12 +8,12 @@ class AuthController {
     try {
       const validatedData = registerAuthSchema.parse(req.body);
 
-      const token = await AuthService.register(
+      const user = await AuthService.register(
         validatedData.name,
         validatedData.email,
         validatedData.password
       );
-      res.status(201).json({ token });
+      res.status(201).json({ user });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res
@@ -30,17 +30,17 @@ class AuthController {
     try {
       const validatedData = loginAuthSchema.parse(req.body);
 
-      const token = await AuthService.login(
+      const user = await AuthService.login(
         validatedData.email,
         validatedData.password
       );
 
-      if (!token) {
+      if (!user) {
         res.status(401).json({ error: "Invalid credentials" });
         return;
       }
 
-      res.json({ token });
+      res.json({ user });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res

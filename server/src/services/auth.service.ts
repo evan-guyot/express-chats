@@ -1,9 +1,18 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/user.model";
+import { User } from "@prisma/client";
+
+interface UserWithToken extends User {
+  token: string;
+}
 
 class AuthService {
-  static async register(name: string, email: string, password: string) {
+  static async register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<UserWithToken | undefined> {
     const existingUser = await UserModel.findUserByEmail(email);
 
     if (existingUser) {
@@ -19,13 +28,13 @@ class AuthService {
       { expiresIn: "1h" }
     );
 
-    return token;
+    return { ...user, token, password: "hidden" };
   }
 
   static async login(
     email: string,
     password: string
-  ): Promise<string | undefined> {
+  ): Promise<UserWithToken | undefined> {
     const user = await UserModel.findUserByEmail(email);
 
     if (!user) {
@@ -43,7 +52,7 @@ class AuthService {
       { expiresIn: "1h" }
     );
 
-    return token;
+    return { ...user, token, password: "hidden" };
   }
 }
 
