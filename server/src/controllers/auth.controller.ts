@@ -13,7 +13,7 @@ class AuthController {
         validatedData.email,
         validatedData.password
       );
-      res.status(201).json({ user });
+      res.status(201).json(user);
     } catch (error) {
       if (error instanceof z.ZodError) {
         res
@@ -40,7 +40,7 @@ class AuthController {
         return;
       }
 
-      res.json({ user });
+      res.json(user);
     } catch (error) {
       if (error instanceof z.ZodError) {
         res
