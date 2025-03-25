@@ -5,6 +5,7 @@ import { User } from "@prisma/client";
 
 interface UserWithToken extends User {
   token: string;
+  tokenExpiration: Date;
 }
 
 class AuthService {
@@ -22,13 +23,18 @@ class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await UserModel.createUser(name, email, hashedPassword);
 
+    const expireTimeInHours = 8;
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      { expiresIn : `${expireTimeInHours}h` }
     );
 
-    return { ...user, token, password: "hidden" };
+    const tokenExpiration = new Date();
+    tokenExpiration.setHours(tokenExpiration.getHours() + expireTimeInHours);
+
+
+    return { ...user, token, tokenExpiration, password: "hidden" };
   }
 
   static async login(
@@ -46,13 +52,17 @@ class AuthService {
       return undefined;
     }
 
+    const expireTimeInHours = 8;
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      { expiresIn : `${expireTimeInHours}h` }
     );
 
-    return { ...user, token, password: "hidden" };
+    const tokenExpiration = new Date();
+    tokenExpiration.setHours(tokenExpiration.getHours() + expireTimeInHours);
+
+    return { ...user, token, tokenExpiration, password: "hidden" };
   }
 }
 

@@ -27,14 +27,14 @@ function UserProfile({ user }: { user: User }) {
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-center w-40 h-40 p-4 bg-transparent border border-gray-300 rounded-lg shadow-md dark:border-gray-700">
+            <a href="/rooms" className="flex flex-col items-center justify-center w-40 h-40 p-4 bg-transparent border border-gray-300 rounded-lg shadow-md dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Rooms
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Explore chat rooms
               </p>
-            </div>
+            </a>
           </div>
 
           <a
