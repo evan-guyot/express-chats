@@ -1,4 +1,4 @@
-name: Build and Upload TypeScript Compilation
+name: Build and Upload TypeScript and Vite Compilation
 
 on:
   push:
@@ -19,17 +19,34 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      # Server Compilation
+      - name: Install server dependencies
         run: npm install
         working-directory: server
 
-      - name: Compile TypeScript
+      - name: Build Express Server
         run: npm run build
         working-directory: server
 
-      - name: Upload compiled files
+      - name: Upload compiled server files
         uses: actions/upload-artifact@v4
         with:
           name: compiled-server-dist
           path: server/dist/
+          retention-days: 5
+
+      # Webapp Compilation
+      - name: Install webapp dependencies
+        run: npm install
+        working-directory: webapp
+
+      - name: Build Vite React App
+        run: npm run build
+        working-directory: webapp
+
+      - name: Upload compiled webapp files
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-webapp-dist
+          path: webapp/dist/
           retention-days: 5
