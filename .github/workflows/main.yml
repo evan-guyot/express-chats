@@ -1,4 +1,4 @@
-name: Build and Upload TypeScript and Vite Compilation
+name: Build and Upload Project
 
 on:
   push:
