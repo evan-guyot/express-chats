@@ -22,6 +22,12 @@ class UserModel {
       where: { email },
     });
   }
+
+  static async findUserById(id: number): Promise<User | null> {
+    return await prisma.user.findUnique({
+      where: { id },
+    });
+  }
 }
 
 export default UserModel;

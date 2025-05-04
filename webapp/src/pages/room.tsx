@@ -8,7 +8,7 @@ import { RootState } from "../store";
 import NotFound from "./not-found";
 import { isTokenExpired } from "../slices/userSlice";
 import Unauthorized from "./unauthorized";
-import { Send } from "lucide-react";
+import { ArrowLeft, ArrowUp } from "lucide-react";
 import IMessage from "../types/message";
 import { useWebSocket } from "../contexts/webSocket/useWebSocket";
 
@@ -95,39 +95,46 @@ function Room() {
   };
 
   return (
-    <section className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="p-4 bg-white dark:bg-gray-800 shadow-md m-4 rounded-lg">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center">
+    <section className="flex flex-col h-screen bg-[#f9fafb] dark:bg-gray-900">
+      <header className="sticky top-0 z-20 mx-4 mt-4 mb-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center gap-4">
+        <a href="/rooms" className="flex items-center space-x-2">
+          <ArrowLeft className="w-5 h-5 text-gray-900 dark:text-white" />
+        </a>
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
           {room ? room.name : "Loading..."}
         </h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
         {messages.length > 0 ? (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.userId === user.id ? "justify-end" : "justify-start"
-              }`}
-            >
+          messages.map((message) => {
+            const isOwn = message.userId === user.id;
+            return (
               <div
-                className={`min-w-[100px] max-w-[75%] p-3 rounded-lg shadow-md ${
-                  message.userId === user.id
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"
-                }`}
+                key={message.id}
+                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
               >
-                <p className="text-sm font-semibold mb-1">
-                  {message.userId === user.id ? "You" : message.userName}
-                </p>
-                <p>{message.content}</p>
-                <p className="text-xs text-gray-300 dark:text-gray-500 mt-1 text-right">
-                  {new Date(message.createdAt).toLocaleTimeString()}
-                </p>
+                <div
+                  className={`relative min-w-[15%] max-w-[75%] px-5 py-3 rounded-2xl border border-gray-200 dark:border-gray-700
+                  ${
+                    isOwn
+                      ? "bg-purple-100 dark:bg-purple-200 text-black rounded-tr-none"
+                      : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-none"
+                  }`}
+                >
+                  <div className="text-sm font-semibold mb-1">
+                    {isOwn ? "You" : message.userName || "Unknown"}
+                  </div>
+                  <div className="text-base leading-snug">
+                    {message.content}
+                  </div>
+                  <div className="text-xs text-right text-gray-400 mt-1">
+                    {new Date(message.createdAt).toLocaleTimeString()}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="text-center text-gray-500 dark:text-gray-400">
             No messages yet. Start the conversation!
@@ -135,20 +142,29 @@ function Room() {
         )}
       </div>
 
-      <footer className="p-4 bg-white dark:bg-gray-800 shadow-md m-4 rounded-lg">
+      <footer className="sticky bottom-0 px-6 py-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-4">
           <input
             type="text"
-            className="flex-1 px-6 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-            placeholder="Message"
+            className="flex-1 px-5 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Type your message…"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
           />
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             onClick={handleSendMessage}
+            className="bg-purple-100 hover:bg-purple-200 dark:bg-purple-200 dark:hover:bg-purple-100 text-white p-3 rounded-full transition"
           >
-            <Send className="w-5 h-5 m-auto" />
+            <ArrowUp
+              className="w-5 h-5 text-black antialiased"
+              strokeWidth={1.5}
+            />
           </button>
         </div>
       </footer>
