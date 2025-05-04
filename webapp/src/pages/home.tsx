@@ -5,12 +5,15 @@ import { RootState } from "../store";
 import { useSelector } from "react-redux";
 import UserProfile from "../components/home/user-profile";
 import { isTokenExpired } from "../slices/userSlice";
+import { useWebSocket } from "../contexts/webSocket/useWebSocket";
 
 function Home() {
   const [signIn, setSignIn] = useState<boolean>(false);
   const user = useSelector((state: RootState) => state.user.user);
+  const { startWebSocket } = useWebSocket();
 
   if (user && !isTokenExpired(user)) {
+    startWebSocket(user.token);
     return <UserProfile user={user} />;
   }
 

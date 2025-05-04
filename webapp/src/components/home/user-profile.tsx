@@ -27,7 +27,10 @@ function UserProfile({ user }: { user: User }) {
               </p>
             </div>
 
-            <a href="/rooms" className="flex flex-col items-center justify-center w-40 h-40 p-4 bg-transparent border border-gray-300 rounded-lg shadow-md dark:border-gray-700">
+            <a
+              href="/rooms"
+              className="flex flex-col items-center justify-center w-40 h-40 p-4 bg-transparent border border-gray-300 rounded-lg shadow-md dark:border-gray-700"
+            >
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Rooms
               </h2>
@@ -38,7 +41,7 @@ function UserProfile({ user }: { user: User }) {
           </div>
 
           <a
-            className="flex items-center text-gray-500 dark:text-gray-400 font-medium text-gray-600 dark:text-gray-500 cursor-pointer mx-auto w-fit"
+            className="flex items-center text-gray-500 dark:text-gray-400 font-medium cursor-pointer mx-auto w-fit"
             onClick={handleLogout}
           >
             <LogOut className="mr-2" /> Logout

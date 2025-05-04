@@ -8,25 +8,22 @@ import { RootState } from "../store";
 import NotFound from "./not-found";
 import { isTokenExpired } from "../slices/userSlice";
 import Unauthorized from "./unauthorized";
-import { Send } from "lucide-react";  
+import { Send } from "lucide-react";
 import IMessage from "../types/message";
+import { useWebSocket } from "../contexts/webSocket/useWebSocket";
 
 function Room() {
-  const { id } = useParams()
+  const { id } = useParams();
   const user = useSelector((state: RootState) => state.user.user);
+  const { subscribeToRoom } = useWebSocket();
   const [room, setRoom] = useState<IRoom>();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
-
-  if (!user) {
-    return <NotFound />
-  }
-
-  if (isTokenExpired(user)) {
-    return <Unauthorized />
-  }
+  const { messages: wsMessages } = useWebSocket();
 
   useEffect(() => {
+    if (!user || isTokenExpired(user)) return;
+
     axios
       .get<IRoom>(`/api/rooms/${id}`, {
         headers: {
@@ -35,28 +32,66 @@ function Room() {
       })
       .then((response) => {
         setRoom(response.data);
-      })
-  }, [id]);
+        subscribeToRoom(`room_${response.data.id}`);
+      });
+  }, [id, user, subscribeToRoom]);
 
-  if (!room) {
-    return <RoomNotFound />
+  useEffect(() => {
+    if (!user || isTokenExpired(user) || !room) return;
+
+    axios
+      .get<IMessage[]>(`/api/messages?room_id=${id}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
+      .then((response) => {
+        setMessages(response.data);
+      });
+  }, [id, user, room]);
+
+  useEffect(() => {
+    if (!room) return;
+
+    const incoming = wsMessages[`room_${room.id}`] || [];
+
+    if (incoming.length > 0) {
+      setMessages((prev) => {
+        const existingIds = new Set(prev.map((msg) => msg.id));
+        const newMessages = incoming.filter((msg) => !existingIds.has(msg.id));
+        return [...newMessages, ...prev];
+      });
+    }
+  }, [wsMessages, room]);
+
+  if (!user) {
+    return <NotFound />;
   }
 
+  if (isTokenExpired(user)) {
+    return <Unauthorized />;
+  }
+
+  if (!room) {
+    return <RoomNotFound />;
+  }
 
   const handleSendMessage = () => {
     if (newMessage.trim() === "") return;
 
-    const message: IMessage = {
-      id: crypto.randomUUID(),
-      content: newMessage,
-      userId: user.id,
-      userName: user.name,
-      roomId: room.id,
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessages((prevMessages) => [...prevMessages, message]);
-    setNewMessage("");
+    axios
+      .post(
+        "/api/messages",
+        { content: newMessage, roomId: room.id },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      )
+      .then(() => {
+        setNewMessage("");
+      });
   };
 
   return (
@@ -72,14 +107,16 @@ function Room() {
           messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.userId === user.id ? "justify-end" : "justify-start"
-                }`}
+              className={`flex ${
+                message.userId === user.id ? "justify-end" : "justify-start"
+              }`}
             >
               <div
-                className={`min-w-[100px] max-w-[75%] p-3 rounded-lg shadow-md ${message.userId === user.id
+                className={`min-w-[100px] max-w-[75%] p-3 rounded-lg shadow-md ${
+                  message.userId === user.id
                     ? "bg-blue-500 text-white"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"
-                  }`}
+                }`}
               >
                 <p className="text-sm font-semibold mb-1">
                   {message.userId === user.id ? "You" : message.userName}
